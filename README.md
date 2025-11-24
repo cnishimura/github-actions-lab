@@ -196,13 +196,63 @@ jobs:
 
 ------------------------------------------------------------------------
 
+# 📘 Día 5 -- Matrices y Ejecución Paralela
+
+## 🎯 Objetivo
+
+Ejecutar tests en diferentes versiones de Java de forma paralela
+mediante `strategy.matrix`.
+
+------------------------------------------------------------------------
+
+## ✔ Workflow Día 5
+
+Archivo: `.github/workflows/ci-java-matrix.yml`
+
+``` yaml
+name: CI Java - Día 5 (Matrices y Ejecución Paralela)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  test-matrix:
+    name: Test con matriz de versiones Java
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [ '17', '21' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+
+      - name: Compilar proyecto con Maven
+        run: mvn -B -f java_project/pom.xml compile
+
+      - name: Ejecutar tests en Java ${{ matrix.java }}
+        run: mvn -B -f java_project/pom.xml test
+```
+
+------------------------------------------------------------------------
+
 # 🎉 Estado del laboratorio
 
-Días completados: 
-- \[x\] Día 1\
+Días completados: - \[x\] Día 1\
 - \[x\] Día 2\
 - \[x\] Día 3\
-- \[x\] Día 4
+- \[x\] Día 4\
+- \[x\] Día 5
 
-Siguiente paso: 👉 **Día 5 -- Matrices y ejecución paralela (nivel
-avanzado)**
+Semana 1 COMPLETA.\
+Próxima semana → **Workflows avanzados, Reusables, OIDC, Variables y
+Secrets, Docker y Deploy.**
