@@ -32,7 +32,7 @@ workflows reutilizables.
 
 ------------------------------------------------------------------------
 
-# 📘 **Día 1 -- Introducción a GitHub Actions (Paso a Paso)**
+# 📘 **Día 1 -- Introducción a GitHub Actions**
 
 ## 🎯 Objetivo del día
 
@@ -129,3 +129,4 @@ Al hacer push → GitHub Actions ejecuta el workflow.
 -   Comprensión de la estructura básica\
 -   Repositorio listo para continuar con el Día 2
 
+🚀 DÍA 2 – Crear el workflow real para compilar y ejecutar tests Java
