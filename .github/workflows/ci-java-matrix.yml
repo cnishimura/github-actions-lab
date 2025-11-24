@@ -1,0 +1,31 @@
+name: ci-java-matrices-ejecución-paralela
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  test-matrix:
+    name: Test con matriz de versiones Java
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [ '17', '21' ]   # Ejecutará en paralelo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+
+      - name: Compilar proyecto con Maven
+        run: mvn -B -f java_project/pom.xml compile
+
+      - name: Ejecutar tests en Java ${{ matrix.java }}
+        run: mvn -B -f java_project/pom.xml test
