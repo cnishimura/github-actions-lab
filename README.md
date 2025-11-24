@@ -18,11 +18,11 @@ workflows reutilizables.
 
 # 📘 Día 1 -- Introducción a GitHub Actions
 
-## Objetivo
+## 🎯 Objetivo
 
 Crear primer workflow básico y entender estructura.
 
-### Pasos:
+### ✔ Pasos:
 
 -   Crear repo\
 -   Abrir Actions → "set up a workflow yourself"\
@@ -46,15 +46,15 @@ jobs:
 
 # 📘 Día 2 -- Compilar y ejecutar tests Java
 
-## Objetivo
+## 🎯 Objetivo
 
 Pipeline real que usa Java y Maven.
 
-### Proyecto Java mínimo
+### ✔ Proyecto Java mínimo
 
 Incluye `pom.xml`, clase `HelloWorld`, test `HelloWorldTest`.
 
-### Workflow
+### ✔ Workflow
 
 Archivo: `.github/workflows/ci-java.yml`
 
@@ -81,17 +81,11 @@ jobs:
 
 # 📘 Día 3 -- Cache Maven y Optimización
 
-## Objetivo
+## 🎯 Objetivo
 
 Implementar cache para acelerar builds Maven.
 
-### ¿Por qué usar cache?
-
--   Reduce tiempo de compilación\
--   Evita descargar dependencias\
--   Optimiza el uso del runner
-
-### Workflow Día 3
+### ✔ Workflow Día 3
 
 Archivo: `.github/workflows/ci-java-cache.yml`
 
@@ -132,22 +126,83 @@ jobs:
         run: mvn -B -f java_project/pom.xml test
 ```
 
-### Resultado esperado
+------------------------------------------------------------------------
 
-En la primera ejecución:
+# 📘 Día 4 -- Artefactos y Outputs
 
-    Cache not found
+## 🎯 Objetivo
 
-En ejecuciones siguientes:
-
-    Cache restored successfully
+Aprender a subir y descargar artifacts, usar múltiples jobs y control de
+dependencias entre jobs.
 
 ------------------------------------------------------------------------
 
-# 🎉 Estado actual del laboratorio
+## ✔ Workflow Día 4
 
-Días completados: - \[x\] Día 1\
+Archivo: `.github/workflows/ci-java-artifacts.yml`
+
+``` yaml
+name: CI Java - Día 4 (Artifacts y Outputs)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+
+  build:
+    name: Build y generar JAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compilar proyecto y generar JAR
+        run: mvn -B -f java_project/pom.xml clean package
+
+      - name: Subir JAR como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-jar
+          path: java_project/target/*.jar
+
+  test:
+    name: Descargar artifact y ejecutar pruebas de validación
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar artifact del job build
+        uses: actions/download-artifact@v4
+        with:
+          name: java-jar
+
+      - name: Listar archivos descargados
+        run: ls -R .
+
+      - name: Validación simple del artifact
+        run: |
+          echo "Artifact recibido correctamente."
+          echo "Listo para usar en despliegue o dockerización."
+```
+
+------------------------------------------------------------------------
+
+# 🎉 Estado del laboratorio
+
+Días completados: 
+- \[x\] Día 1\
 - \[x\] Día 2\
-- \[x\] Día 3
+- \[x\] Día 3\
+- \[x\] Día 4
 
-Siguiente paso: 👉 **Día 4 -- Artefactos y outputs**
+Siguiente paso: 👉 **Día 5 -- Matrices y ejecución paralela (nivel
+avanzado)**
