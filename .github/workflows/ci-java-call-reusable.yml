@@ -1,0 +1,15 @@
+name: CI Java - Día 6 (Usando workflow reusable)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  run-reusable:
+    uses: ./.github/workflows/reusable-java-build.yml
+    with:
+      java-version: "17"
+      run-tests: true
+    secrets:
+      custom-token: ${{ secrets.GITHUB_TOKEN }}
