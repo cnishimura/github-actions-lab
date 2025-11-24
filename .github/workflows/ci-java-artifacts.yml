@@ -1,0 +1,50 @@
+name: CI Java - Día 4 (Artifacts y Outputs)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+
+  build:
+    name: Build y generar JAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compilar proyecto y generar JAR
+        run: mvn -B -f java_project/pom.xml clean package
+
+      - name: Subir JAR como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-jar
+          path: java_project/target/*.jar
+
+  test:
+    name: Descargar artifact y ejecutar pruebas de validación
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar artifact del job build
+        uses: actions/download-artifact@v4
+        with:
+          name: java-jar
+
+      - name: Listar archivos descargados
+        run: ls -R .
+
+      - name: Validación simple del artifact
+        run: |
+          echo "Artifact recibido correctamente."
+          echo "Listo para usar en despliegue o dockerización."
