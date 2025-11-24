@@ -1,71 +1,43 @@
 # github-actions-lab
+
 Repositorio de laboratorio para practicar GitHub Actions desde cero
 hasta nivel avanzado: CI, CD, Docker, Sonar, Kubernetes, seguridad y
 workflows reutilizables.
 
-# 📚 **Semana 1 -- Índice de contenidos**
+# 📚 Semana 1 -- Índice de contenidos
 
 > Esta sección ordena todo el material de aprendizaje de GitHub Actions
-> por días, siguiendo un plan progresivo desde nivel básico hasta
-> intermedio.
+> por días.
 
-### **📅 Semana 1**
+### 📅 Semana 1
 
 1.  **Día 1 -- Crear el primer workflow básico**\
-    *Estructura de GitHub Actions, ejecución por push y logs básicos.*
-
 2.  **Día 2 -- Compilar un proyecto Java con Actions**\
-    *Uso de `checkout`, `setup-java`, Maven/Gradle y ejecución de
-    tests.*
-
 3.  **Día 3 -- Cache de dependencias y optimización del pipeline**\
-    *Implementar `actions/cache` para Maven/Gradle y comprender claves
-    de caché.*
-
 4.  **Día 4 -- Artefactos y outputs**\
-    *Subir el `.jar` generado y entender cómo compartir artefactos entre
-    jobs.*
-
-5.  **Día 5 -- Matrices y ejecución paralela**\
-    *Tests en múltiples versiones de Java (17, 21) o sistemas
-    operativos.*
+5.  **Día 5 -- Matrices y ejecución paralela**
 
 ------------------------------------------------------------------------
 
-# 📘 **Día 1 -- Introducción a GitHub Actions**
+# 📘 Día 1 -- Introducción a GitHub Actions (Paso a Paso)
 
-## 🎯 Objetivo del día
+## 🎯 Objetivo
 
-Crear el primer workflow de GitHub Actions y entender la estructura
-básica:\
-`on`, `jobs`, `runs-on`, `steps`.
+Crear el primer workflow básico y entender estructura: `on`, `jobs`,
+`steps`.
 
-------------------------------------------------------------------------
+### ✔ 1. Crear repositorio
 
-## ✅ **1. Crear el repositorio**
+-   Nombre: `github-actions-lab`
+-   Add README activado
 
-1.  Ir a GitHub → **New repository**
-2.  Nombre: `github-actions-lab`
-3.  Activar **Add README**
-4.  Crear el repositorio
+### ✔ 2. Abrir pestaña Actions → "set up a workflow yourself"
 
-------------------------------------------------------------------------
-
-## ✅ **2. Abrir la pestaña Actions**
-
-1.  En el repositorio, ir a la pestaña **Actions**
-2.  Seleccionar la opción:\
-    **"set up a workflow yourself"**
-
-Esto abrirá un archivo en la ruta:
+Esto crea:
 
     .github/workflows/ci-basico.yml
 
-------------------------------------------------------------------------
-
-## ✅ **3. Crear el workflow básico**
-
-Pegar el siguiente contenido:
+### ✔ 3. Crear workflow
 
 ``` yaml
 name: CI basico
@@ -84,49 +56,110 @@ jobs:
         run: echo "Hola desde GitHub Actions 🚀"
 ```
 
+### ✔ 4. Commit del archivo
+
+### ✔ 5. Disparar workflow editando README
+
+### ✔ 6. Ver ejecución en Actions
+
 ------------------------------------------------------------------------
 
-## ✅ **4. Guardar el workflow**
+# 📘 Día 2 -- Compilar y ejecutar tests Java (CI Real)
 
-1.  Hacer clic en **Commit changes**
-2.  Confirmar el commit en la rama `main`
+## 🎯 Objetivo
+
+Crear pipeline real que: - Descargue el código - Instale Java 17 -
+Compile proyecto Maven - Ejecute pruebas unitarias
 
 ------------------------------------------------------------------------
 
-## ✅ **5. Disparar el workflow**
+## ✔ 1. Subir proyecto Java
 
-1.  Editar el archivo `README.md`\
-2.  Agregar una línea nueva:
+El proyecto mínimo contiene:
 
-```{=html}
-<!-- -->
+    pom.xml
+    src/main/java/com/example/HelloWorld.java
+    src/test/java/com/example/HelloWorldTest.java
+
+------------------------------------------------------------------------
+
+## ✔ 2. Crear archivo del workflow
+
+Ruta:
+
+    .github/workflows/ci-java.yml
+
+Contenido:
+
+``` yaml
+name: CI Java - Día 2
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compilar proyecto con Maven
+        run: mvn -B -f java_project/pom.xml compile
+
+      - name: Ejecutar tests
+        run: mvn -B -f java_project/pom.xml test
 ```
-    Probando GitHub Actions - Día 1
-
-3.  Hacer **Commit changes**
-
-Al hacer push → GitHub Actions ejecuta el workflow.
 
 ------------------------------------------------------------------------
 
-## ✅ **6. Revisar la ejecución**
+## ✔ 3. Guardar workflow
 
-1.  Ir a la pestaña **Actions**
-2.  Abrir el workflow **CI basico**
-3.  Ver el job **say-hello**
-4.  Confirmar que aparece el mensaje:
-
-```{=html}
-<!-- -->
-```
-    Hola desde GitHub Actions 🚀
+Click en **Commit changes** → rama `main`.
 
 ------------------------------------------------------------------------
 
-## 🎉 **Resultado del Día 1**
+## ✔ 4. Disparar workflow
 
--   Primer workflow funcionando\
--   Comprensión de la estructura básica\
--   Repositorio listo para continuar con el Día 2
+Editar README y hacer commit.
 
-🚀 DÍA 2 – Crear el workflow real para compilar y ejecutar tests Java
+------------------------------------------------------------------------
+
+## ✔ 5. Verificar ejecución
+
+En **Actions** debe aparecer:
+
+-   Workflow: **CI Java - Día 2**
+-   Job: `build-and-test`
+-   Pasos ejecutados exitosamente:
+    -   Checkout
+    -   Setup Java 17
+    -   Compile
+    -   Test
+
+Salida esperada:
+
+    Running com.example.HelloWorldTest
+    Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+    BUILD SUCCESS
+
+------------------------------------------------------------------------
+
+# 🎉 Resultado del Día 2
+
+Has logrado:
+
+-   Pipeline Java completamente funcional\
+-   Ejecución automática de Maven y tests\
+-   Uso profesional de `checkout` y `setup-java`
+
+Listo para avanzar al **Día 3: Cache Maven y optimización**.
