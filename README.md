@@ -163,3 +163,5 @@ Has logrado:
 -   Uso profesional de `checkout` y `setup-java`
 
 Listo para avanzar al **Día 3: Cache Maven y optimización**.
+
+Actualización para el Día 3
