@@ -1,0 +1,14 @@
+name: CI basico
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mostrar mensaje
+        run: echo "Hola desde GitHub Actions 🚀"
