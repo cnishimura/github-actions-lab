@@ -1,0 +1,57 @@
+# Nombre visible del workflow en la pestaña Actions
+name: Publicar imagen Docker en GHCR (Día 8)
+
+# Eventos que disparan el workflow:
+on:
+  push:
+    branches:
+      - main        # El workflow corre cuando haces push a la rama main
+  workflow_dispatch: # Permite ejecutarlo manualmente desde Actions
+
+# Variables globales (ENV)
+env:
+  REGISTRY: ghcr.io                   # Registro donde se publicará la imagen
+  IMAGE_NAME: ${{ github.repository }} # Nombre del repo dueño de la imagen
+
+jobs:
+  build-and-push:   # Nombre del job principal
+    runs-on: ubuntu-latest   # GitHub usará un runner Ubuntu
+
+    # Permisos mínimos que el job necesita:
+    permissions:
+      contents: read   # Leer el código del repo
+      packages: write  # Permiso NECESARIO para publicar en GHCR
+
+    steps:
+      # 1. Descargar el código del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Autenticarse en GHCR (GitHub Container Registry)
+      #    Usamos docker/login-action y el secreto GHCR_TOKEN
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io             # Registro al cual nos vamos a loguear
+          username: ${{ github.actor }} # Nombre de usuario del repositorio
+          password: ${{ secrets.GHCR_TOKEN }} # Token de autenticación (secreto)
+
+      # 3. Construir la imagen Docker
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository }}:latest \        # Tag principal
+            -t ghcr.io/${{ github.repository }}:${{ github.sha }} . # Tag único por commit
+
+      # 4. Publicar la imagen en GHCR (subir la imagen)
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}:latest      # Imagen latest
+          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}  # Imagen versionada
+
+      # 5. Mostrar por pantalla la referencia de la imagen publicada
+      - name: Mostrar imagen publicada
+        run: |
+          echo "🔹 Imagen publicada en GHCR:"
+          echo "ghcr.io/${{ github.repository }}:latest"
+          echo "ghcr.io/${{ github.repository }}:${{ github.sha }}"
