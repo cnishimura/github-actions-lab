@@ -374,5 +374,66 @@ uses: ./.github/workflows/reusable-java-build.yml
 
 ---
 
+# Día 7: Variables, Secrets y Environments
+
+## 1. Introducción
+En este día aprendimos a usar Variables, Secrets y Environments en GitHub Actions.
+
+## 2. Variables
+- Variables a nivel de repositorio
+- Variables a nivel de organización
+- Variables por environment
+
+## 3. Secrets
+- Secrets del repositorio
+- Secrets por environment
+- Buenas prácticas
+
+## 4. Environments
+- Creación de ambientes: dev, qa, prod
+- Reglas de protección
+- Aprobaciones manuales
+- Uso real en CI/CD
+
+## 5. Workflow de ejemplo
+```yaml
+name: CI/CD con Environments (Día 7)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Ambiente de despliegue"
+        required: true
+        type: choice
+        options:
+          - dev
+          - qa
+          - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+
+    steps:
+      - name: Print environment info
+        run: |
+          echo "Desplegando en: ${{ inputs.environment }}"
+
+      - name: Usar secrets del environment
+        run: echo "Secret cargado correctamente"
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+```
+
+## 6. Resultado esperado
+- dev ejecuta inmediatamente
+- qa requiere aprobación si se activa
+- prod puede tener reglas más estrictas
+
+## 7. Conclusión
+Este día marca el inicio de la seguridad y control profesional en CI/CD.
 
 
