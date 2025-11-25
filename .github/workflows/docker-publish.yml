@@ -1,57 +1,42 @@
-# Nombre visible del workflow en la pestaña Actions
 name: Publicar imagen Docker en GHCR (Día 8)
 
-# Eventos que disparan el workflow:
 on:
-  push:
-    branches:
-      - main        # El workflow corre cuando haces push a la rama main
-  workflow_dispatch: # Permite ejecutarlo manualmente desde Actions
-
-# Variables globales (ENV)
-env:
-  REGISTRY: ghcr.io                   # Registro donde se publicará la imagen
-  IMAGE_NAME: ${{ github.repository }} # Nombre del repo dueño de la imagen
+  workflow_dispatch:   # Permite ejecutar el workflow manualmente
 
 jobs:
-  build-and-push:   # Nombre del job principal
-    runs-on: ubuntu-latest   # GitHub usará un runner Ubuntu
-
-    # Permisos mínimos que el job necesita:
-    permissions:
-      contents: read   # Leer el código del repo
-      packages: write  # Permiso NECESARIO para publicar en GHCR
+  build-and-push:
+    runs-on: ubuntu-latest  # Usa un runner de Ubuntu
 
     steps:
-      # 1. Descargar el código del repositorio
+      # 1. Clonar el repositorio actual
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # Descarga el código del repo
 
-      # 2. Autenticarse en GHCR (GitHub Container Registry)
-      #    Usamos docker/login-action y el secreto GHCR_TOKEN
+      # 2. Iniciar sesión en GHCR utilizando el token secreto
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io             # Registro al cual nos vamos a loguear
-          username: ${{ github.actor }} # Nombre de usuario del repositorio
-          password: ${{ secrets.GHCR_TOKEN }} # Token de autenticación (secreto)
+          registry: ghcr.io                               # Registro de GHCR
+          username: ${{ github.actor }}                   # Usuario actual
+          password: ${{ secrets.GHCR_TOKEN }}             # Token secreto generado
 
       # 3. Construir la imagen Docker
       - name: Build Docker image
         run: |
+          # Construcción de la imagen con 2 tags:
+          #  - latest
+          #  - commit SHA para trazabilidad
           docker build \
-            -t ghcr.io/${{ github.repository }}:latest \        # Tag principal
             -t ghcr.io/${{ github.repository_owner }}/java-app:latest \
-            docker_app
-      # 4. Publicar la imagen en GHCR (subir la imagen)
+            -t ghcr.io/${{ github.repository_owner }}/java-app:${{ github.sha }} \
+            ./docker_app
+
+      # 4. Publicar (push) la imagen al registro GHCR
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}:latest      # Imagen latest
-          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}  # Imagen versionada
+          docker push ghcr.io/${{ github.repository_owner }}/java-app:latest
+          docker push ghcr.io/${{ github.repository_owner }}/java-app:${{ github.sha }}
 
-      # 5. Mostrar por pantalla la referencia de la imagen publicada
+      # 5. Mostrar la URL final de la imagen publicada
       - name: Mostrar imagen publicada
-        run: |
-          echo "🔹 Imagen publicada en GHCR:"
-          echo "ghcr.io/${{ github.repository }}:latest"
-          echo "ghcr.io/${{ github.repository }}:${{ github.sha }}"
+        run: echo "Imagen publicada en: ghcr.io/${{ github.repository_owner }}/java-app:latest"
