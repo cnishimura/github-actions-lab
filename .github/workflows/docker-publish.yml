@@ -1,24 +1,32 @@
 name: Publicar imagen Docker en GHCR (Día 8)
 
 on:
-  workflow_dispatch:          # Permite ejecutarlo manualmente
   push:
     branches:
       - main
     paths-ignore:
-      - ".github/workflows/**"   # ⛔ NO ejecutar cuando solo cambian workflows
-      - "README.md"              # (opcional) Evita ejecutar por cambios en documentación
+      - 'README.md'
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - 'images/**'
+      - '*.png'
+      - '*.jpg'
+      - '*.jpeg'
+      - '*.gif'
+      - '*.svg'
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código
+      # 1. Descargar el repositorio
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Login a GHCR
+      # 2. Autenticación en GHCR
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -26,7 +34,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      # 3. Construir imagen Docker (desde docker_app/Dockerfile)
+      # 3. Construcción la imagen Docker desde docker_app/
       - name: Build Docker image
         run: |
           docker build \
@@ -34,12 +42,15 @@ jobs:
             -t ghcr.io/${{ github.repository_owner }}/java-app:${{ github.sha }} \
             docker_app
 
-      # 4. Publicar imagen en GHCR
+      # 4. Envío (push) al registry GHCR
       - name: Push Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/java-app:latest
           docker push ghcr.io/${{ github.repository_owner }}/java-app:${{ github.sha }}
 
-      # 5. Mostrar URL final publicada
-      - name: Mostrar URL de imagen publicada
-        run: echo "Imagen publicada en: ghcr.io/${{ github.repository_owner }}/java-app:latest"
+      # 5. Mostrar URL final
+      - name: Mostrar imagen publicada
+        run: |
+          echo "Imagen publicada correctamente:"
+          echo "➡️ ghcr.io/${{ github.repository_owner }}/java-app:latest"
+          echo "➡️ ghcr.io/${{ github.repository_owner }}/java-app:${{ github.sha }}"
