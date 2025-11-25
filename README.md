@@ -256,3 +256,123 @@ Días completados: - \[x\] Día 1\
 Semana 1 COMPLETA.\
 Próxima semana → **Workflows avanzados, Reusables, OIDC, Variables y
 Secrets, Docker y Deploy.**
+
+
+# Día 6 – Uso de Workflows Reutilizables en GitHub Actions
+
+En este día aprenderás a crear **workflows reutilizables**, una funcionalidad avanzada que permite centralizar lógicas CI/CD y reutilizarlas desde otros workflows.
+
+---
+
+## 🎯 Objetivo del Día 6
+- Crear un **workflow reutilizable** (`reusable-java-build.yml`)
+- Consumirlo desde un workflow caller (`ci-java-call-reusable.yml`)
+- Aprender a usar `workflow_call`, `inputs`, `secrets` y parámetros.
+- Validar la ejecución en GitHub Actions.
+
+---
+
+# 🧩 1. Crear workflow reutilizable
+
+Archivo: `.github/workflows/reusable-java-build.yml`
+
+```yaml
+name: Java Build Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: true
+        type: string
+      build-command:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: ${{ inputs.java-version }}
+
+      - name: Build project
+        run: ${{ inputs.build-command }}
+```
+
+✔ Este workflow **no se ejecuta directamente**  
+✔ Solo puede ser llamado desde otro workflow
+
+---
+
+# 🧲 2. Crear workflow caller
+
+Archivo: `.github/workflows/ci-java-call-reusable.yml`
+
+```yaml
+name: CI Java Call Reusable
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-reusable:
+    uses: ./.github/workflows/reusable-java-build.yml
+    with:
+      java-version: "17"
+      build-command: "mvn -B package"
+```
+
+✔ Llama al workflow reutilizable  
+✔ Envía los parámetros necesarios  
+✔ Construye el proyecto usando Maven
+
+---
+
+# 📌 3. Ejecución correcta
+
+Una ejecución exitosa muestra:
+
+- Setup Java (temurin 17)
+- Build del proyecto con Maven
+- Uso del workflow llamado (caller)
+- Status: **Success**
+
+---
+
+# 🧯 4. Principales errores solucionados
+
+### ❌ Error: "Unrecognized named-value: 'secrets'"
+Ocurre si se declara `secrets:` en el reusable workflow sin usar `secret:`.
+
+Solución: eliminar el parámetro opcional o declararlo correctamente.
+
+### ❌ Error: ruta del workflow
+Debes usar:
+
+```
+uses: ./.github/workflows/reusable-java-build.yml
+```
+
+---
+
+# ✅ 5. Resultado final del Día 6
+
+- Tienes workflows **modulares**
+- Separación clara entre caller y reusable
+- Mejor mantenimiento y escalabilidad
+- Preparado para pipelines avanzados
+
+---
+
+
+
