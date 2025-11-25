@@ -41,8 +41,8 @@ jobs:
         run: |
           docker build \
             -t ghcr.io/${{ github.repository }}:latest \        # Tag principal
-            -t ghcr.io/${{ github.repository }}:${{ github.sha }} . # Tag único por commit
-
+            -t ghcr.io/${{ github.repository_owner }}/java-app:latest \
+            docker_app
       # 4. Publicar la imagen en GHCR (subir la imagen)
       - name: Push Docker image
         run: |
